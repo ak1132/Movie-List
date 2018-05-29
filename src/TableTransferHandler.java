@@ -4,6 +4,9 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -12,23 +15,26 @@ import javax.swing.table.DefaultTableModel;
 
 public class TableTransferHandler extends TransferHandler {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
+
+	int sourceRow = 0;
 
 	public int getSourceActions(JComponent c) {
 		return DnDConstants.ACTION_COPY_OR_MOVE;
 	}
 
 	public Transferable createTransferable(JComponent comp) {
-		JTable table = (JTable) comp;
-		int row = table.getSelectedRow();
-		int col = table.getSelectedColumn();
 
-		String value = (String) table.getModel().getValueAt(row, col);
-		StringSelection transferable = new StringSelection(value);
-		table.getModel().setValueAt(null, row, col);
+		List<String> selectedRowAttr = new ArrayList<String>();
+		JTable table = (JTable) comp;
+		sourceRow = table.getSelectedRow();
+
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			String value = (String) table.getModel().getValueAt(sourceRow, i);
+			selectedRowAttr.add(value);
+		}
+
+		StringSelection transferable = new StringSelection(Arrays.toString(selectedRowAttr.toArray()));
 		return transferable;
 	}
 
@@ -55,19 +61,30 @@ public class TableTransferHandler extends TransferHandler {
 
 		JTable.DropLocation dl = (JTable.DropLocation) support.getDropLocation();
 
-		int row = dl.getRow();
-		int col = dl.getColumn();
+		int afterrow = dl.getRow();
+		int column = dl.getColumn();
+
+		tableModel.getValueAt(afterrow, column);
 
 		String data;
+		String datu[] = null;
 		try {
 			data = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);
+			if (data != null || data != "") {
+				data = data.substring(1, data.length() - 2);
+				datu = data.split(",");
+			}
 		} catch (UnsupportedFlavorException e) {
 			return false;
 		} catch (IOException e) {
 			return false;
 		}
 
-		tableModel.setValueAt(data, row, col);
+		for (int i = 0; i < datu.length; i++) {
+			String val = (String) tableModel.getValueAt(afterrow, i);
+			tableModel.setValueAt(val, sourceRow, i);
+			tableModel.setValueAt(datu[i], afterrow, i);
+		}
 
 		return true;
 	}

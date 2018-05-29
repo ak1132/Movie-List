@@ -10,7 +10,6 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
-import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -50,12 +49,6 @@ public class QueueTable extends JPanel {
 		File f = new File("movie_data.csv");
 
 		refreshComponents(false, f);
-
-		addTableComponents();
-
-	}
-
-	public void addTableComponents() {
 
 		JScrollPane scrollPane = new JScrollPane(table);
 
@@ -185,14 +178,11 @@ public class QueueTable extends JPanel {
 			table = new JTable(tableModel) {
 				@Override
 				public boolean isCellEditable(int row, int column) {
-					return false;
+					return true;
 				}
 			};
-			table.setDragEnabled(true);
-			table.setDropMode(DropMode.USE_SELECTION);
-
 			table.setTransferHandler(new TableTransferHandler());
-
+			table.setDragEnabled(true);
 			table.setPreferredScrollableViewportSize(new Dimension(500, 500));
 			table.setFillsViewportHeight(true);
 			tableModel.setColumnIdentifiers(columnNames);
