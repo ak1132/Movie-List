@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FileDialog;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,12 +40,14 @@ import org.xml.sax.SAXException;
 @SuppressWarnings("serial")
 public class QueueTable extends JPanel {
 
-	DefaultTableModel tableModel;
-	JTable table;
-	static JFrame frame;
+	private DefaultTableModel tableModel;
+	private JTable table;
+	private static JFrame frame;
 
 	public QueueTable() throws IOException, SAXException, ParserConfigurationException {
 		super(new GridBagLayout());
+
+		GridBagConstraints gbc = new GridBagConstraints();
 
 		File f = new File("movie_data.csv");
 
@@ -52,11 +55,14 @@ public class QueueTable extends JPanel {
 
 		JScrollPane scrollPane = new JScrollPane(table);
 
-		add(scrollPane);
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+
+		add(scrollPane, gbc);
 
 		JButton submitButton = new JButton();
 		submitButton.setText("Save as XML");
-		add(submitButton);
 
 		submitButton.addActionListener(new ActionListener() {
 
@@ -112,8 +118,6 @@ public class QueueTable extends JPanel {
 				try {
 					if (file != null) {
 						refreshComponents(true, file);
-					} else {
-						JOptionPane.showMessageDialog(null, "Please select a valid file");
 					}
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -147,18 +151,33 @@ public class QueueTable extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int row = table.getSelectedRow();
-				if (row > 0)
+
+				if (row > 0) {
 					tableModel.removeRow(row);
+				}
 				tableModel.fireTableDataChanged();
 			}
 
 		});
 
-		add(up);
-		add(down);
-		add(importB);
-		add(addB);
-		add(delete);
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		add(submitButton, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		add(up, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		add(down, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 4;
+		add(importB, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 5;
+		add(addB, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 6;
+		add(delete, gbc);
 	}
 
 	public String[] refreshComponents(boolean exists, File file)
@@ -181,14 +200,15 @@ public class QueueTable extends JPanel {
 					return true;
 				}
 			};
+
 			table.setTransferHandler(new TableTransferHandler());
 			table.setDragEnabled(true);
 			table.setPreferredScrollableViewportSize(new Dimension(500, 500));
 			table.setFillsViewportHeight(true);
-			tableModel.setColumnIdentifiers(columnNames);
+			table.setAutoCreateRowSorter(true);
+
 			for (int i = 0; i < tableLines.length; i++) {
 				tableModel.addRow(tableLines[i].toString().split(","));
-
 			}
 
 			sc.close();
@@ -215,10 +235,12 @@ public class QueueTable extends JPanel {
 	public static void createUI() throws IOException, SAXException, ParserConfigurationException {
 		frame = new JFrame("Netflix Queue");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		QueueTable table = new QueueTable();
-		table.setOpaque(true);
-		frame.setContentPane(table);
+		QueueTable qTable = new QueueTable();
 
+		qTable.setOpaque(true);
+		frame.setContentPane(qTable);
+		frame.setResizable(true);
+		frame.setLocationRelativeTo(null);
 		frame.pack();
 		frame.setVisible(true);
 	}

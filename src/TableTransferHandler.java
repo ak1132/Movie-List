@@ -17,7 +17,7 @@ public class TableTransferHandler extends TransferHandler {
 
 	private static final long serialVersionUID = 1L;
 
-	int sourceRow = 0;
+	private int sourceRow = 0;
 
 	public int getSourceActions(JComponent c) {
 		return DnDConstants.ACTION_COPY_OR_MOVE;
@@ -67,12 +67,12 @@ public class TableTransferHandler extends TransferHandler {
 		tableModel.getValueAt(afterrow, column);
 
 		String data;
-		String datu[] = null;
+		String microData[] = null;
 		try {
 			data = (String) support.getTransferable().getTransferData(DataFlavor.stringFlavor);
 			if (data != null || data != "") {
 				data = data.substring(1, data.length() - 2);
-				datu = data.split(",");
+				microData = data.split(",");
 			}
 		} catch (UnsupportedFlavorException e) {
 			return false;
@@ -80,10 +80,10 @@ public class TableTransferHandler extends TransferHandler {
 			return false;
 		}
 
-		for (int i = 0; i < datu.length; i++) {
+		for (int i = 0; i < microData.length; i++) {
 			String val = (String) tableModel.getValueAt(afterrow, i);
 			tableModel.setValueAt(val, sourceRow, i);
-			tableModel.setValueAt(datu[i], afterrow, i);
+			tableModel.setValueAt(microData[i], afterrow, i);
 		}
 
 		return true;
